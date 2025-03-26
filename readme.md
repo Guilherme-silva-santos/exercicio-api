@@ -1,7 +1,7 @@
 # Exercício React Native
 
 ---
-- [ ]  Realizar configuração do Axios.
+- [ x ]  Realizar configuração do Axios.
 - [ ]  Realizar os devidos ajustes no layout.
 - [ ]  Realizar o consumo da API de acordo com as rotas do CRUD que foi passado no documento do Insomnia.
 - [ ]  Seguir todos os passos que utilizamos como padrão na equipe seguindo como exemplo o arquivo do projeto que foi fornecido.
