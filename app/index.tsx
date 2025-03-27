@@ -1,11 +1,34 @@
 import { BaseModal } from "@/components/BaseModal";
 import { Text, View } from "@/components/Themed";
+import { useBlogPosts } from "@/data/Posts";
 import { MaterialIcons } from "@expo/vector-icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { StyleSheet, TextInput, TouchableOpacity } from "react-native";
 
 export default function Index() {
   const [showModal, setShowModal] = useState(false);
+  const {
+    getAllPosts,
+    posts,
+    getAllPostsRequestStatus,
+    createPost,
+    createPostRequestStatus,
+  } = useBlogPosts();
+
+  useEffect(() => {
+    getAllPosts();
+  }, []);
+
+  const handleCreatePost = () => {
+    console.log("create post", createPostRequestStatus);
+    createPost({
+      body: "não sei",
+      title: "nao sei",
+      userId: 1,
+    });
+
+    setShowModal(false);
+  };
 
   return (
     <View lightColor="#F2F4F7" style={styles.container}>
@@ -76,7 +99,8 @@ export default function Index() {
       <TouchableOpacity
         activeOpacity={0.7}
         style={styles.addButton}
-        onPress={() => setShowModal(true)}
+        // onPress={() => setShowModal(true)}
+        onPress={handleCreatePost}
       >
         <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>
