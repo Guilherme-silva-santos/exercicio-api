@@ -13,6 +13,8 @@ export default function Index() {
     getAllPostsRequestStatus,
     createPost,
     createPostRequestStatus,
+    patchPost,
+    patchPostRequestStatus,
   } = useBlogPosts();
 
   useEffect(() => {
@@ -28,6 +30,14 @@ export default function Index() {
     });
 
     setShowModal(false);
+  };
+
+  const handlePatchPost = () => {
+    console.log("patch post", patchPostRequestStatus);
+    patchPost("1", {
+      body: "não sei",
+      title: "nao sei",
+    });
   };
 
   return (
@@ -100,7 +110,8 @@ export default function Index() {
         activeOpacity={0.7}
         style={styles.addButton}
         // onPress={() => setShowModal(true)}
-        onPress={handleCreatePost}
+        // onPress={handleCreatePost}
+        onPress={handlePatchPost}
       >
         <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>

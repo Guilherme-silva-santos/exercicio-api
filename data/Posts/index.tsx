@@ -6,7 +6,6 @@ import { RequestStatus } from "@/model/request-status";
 import { api } from "@/service/axios";
 import { useRouter } from "expo-router";
 import { createContext, useContext, useState } from "react";
-import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 interface PostProviderProps {
   children: React.ReactNode;
 }
@@ -21,18 +20,17 @@ interface PostContextProps {
   createPost: (data: CreatePostRequest) => void;
   createPostRequestStatus: RequestStatus;
 
-  // patchPost: (id: string, data: PatchPostRequest) => void;
-  // patchPostRequestStatus: RequestStatus;
+  patchPost: (id: string, data: PatchPostRequest) => void;
+  patchPostRequestStatus: RequestStatus;
 
-  // putPost: (id: string, data: PutPostRequest) => void;
-  // putPostRequestStatus: RequestStatus;
+  putPost: (id: string, data: PutPostRequest) => void;
+  putPostRequestStatus: RequestStatus;
 
-  // deletePostById: (id: string) => void;
-  // deletePostRequestStatus: RequestStatus;
+  deletePostById: (id: string) => void;
+  deletePostRequestStatus: RequestStatus;
 
   // createPostRequest: CreatePostRequest;
   // setCreatePostRequest: (data: CreatePostRequest) => void;
-  // getAllPostsRequestStatus: RequestStatus;
 }
 
 const PostContext = createContext<PostContextProps>({} as PostContextProps);
@@ -51,12 +49,13 @@ export const PostProvider = ({ children }: PostProviderProps) => {
   const [getAllPostsRequestStatus, setGetAllPostsRequestStatus] =
     useState<RequestStatus>({ status: "idle" });
 
-  // const [patchPostRequestStatus, setPatchPostRequestStatus] =
-  //   useState<RequestStatus>({ status: "idle" });
-  // const [putPostRequestStatus, setPutPostRequestStatus] =
-  //   useState<RequestStatus>({ status: "idle" });
-  // const [deletePostRequestStatus, setDeletePostRequestStatus] =
-  //   useState<RequestStatus>({ status: "idle" });
+  const [patchPostRequestStatus, setPatchPostRequestStatus] =
+    useState<RequestStatus>({ status: "idle" });
+
+  const [putPostRequestStatus, setPutPostRequestStatus] =
+    useState<RequestStatus>({ status: "idle" });
+  const [deletePostRequestStatus, setDeletePostRequestStatus] =
+    useState<RequestStatus>({ status: "idle" });
 
   const [posts, setPosts] = useState<GetPostResponse[]>([]);
 
@@ -87,6 +86,42 @@ export const PostProvider = ({ children }: PostProviderProps) => {
     }
   };
 
+  const patchPost = async (id: string, data: PatchPostRequest) => {
+    setPatchPostRequestStatus({ status: "pending" });
+    try {
+      await api.patch(`/posts/${id}`, data);
+      setPatchPostRequestStatus({ status: "succeeded" });
+    } catch (error) {
+      console.log(error);
+
+      setPatchPostRequestStatus({ status: "failed" });
+    }
+  };
+
+  const putPost = async (id: string, data: PutPostRequest) => {
+    setPutPostRequestStatus({ status: "pending" });
+    try {
+      await api.put(`/posts/${id}`, data);
+      setPutPostRequestStatus({ status: "succeeded" });
+    } catch (error) {
+      console.log(error);
+
+      setPutPostRequestStatus({ status: "failed" });
+    }
+  };
+
+  const deletePostById = async (id: string) => {
+    setDeletePostRequestStatus({ status: "pending" });
+    try {
+      await api.delete(`/posts/${id}`);
+      setDeletePostRequestStatus({ status: "succeeded" });
+    } catch (error) {
+      console.log(error);
+
+      setDeletePostRequestStatus({ status: "failed" });
+    }
+  };
+
   return (
     <PostContext.Provider
       value={{
@@ -96,6 +131,12 @@ export const PostProvider = ({ children }: PostProviderProps) => {
         getAllPostsRequestStatus,
         createPostRequestStatus,
         createPost,
+        patchPost,
+        patchPostRequestStatus,
+        putPost,
+        putPostRequestStatus,
+        deletePostById,
+        deletePostRequestStatus,
       }}
     >
       {children}
