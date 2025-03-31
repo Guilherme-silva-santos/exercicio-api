@@ -1,117 +1,126 @@
-import { BaseModal } from "@/components/BaseModal";
 import { Text, View } from "@/components/Themed";
 import { useBlogPosts } from "@/data/Posts";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
-import { StyleSheet, TextInput, TouchableOpacity } from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
+import { CreatePostModal } from "@/components/CreatePostModal";
+import { EditPostModal } from "@/components/EditPostModal";
+import { GetPostResponse } from "@/model/get-post-response";
 
 export default function Index() {
   const [showModal, setShowModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [postSelected, setPostSelected] = useState<GetPostResponse | null>(
+    null
+  );
   const {
     getAllPosts,
-    posts,
     getAllPostsRequestStatus,
-    createPost,
-    createPostRequestStatus,
-    patchPost,
-    patchPostRequestStatus,
+    posts,
+    deletePostById,
+    deletePostRequestStatus,
   } = useBlogPosts();
-
   useEffect(() => {
     getAllPosts();
   }, []);
 
-  const handleCreatePost = () => {
-    console.log("create post", createPostRequestStatus);
-    createPost({
-      body: "não sei",
-      title: "nao sei",
-      userId: 1,
-    });
+  useEffect(() => {
+    console.log(postSelected);
+  }, [postSelected]);
 
-    setShowModal(false);
-  };
+  const handleDeletePost = (item: GetPostResponse) => {
+    console.log(item);
 
-  const handlePatchPost = () => {
-    console.log("patch post", patchPostRequestStatus);
-    patchPost("1", {
-      body: "não sei",
-      title: "nao sei",
-    });
+    Alert.alert(
+      "Confirmar Exclusão",
+      "Tem certeza que deseja excluir esse post?",
+      [
+        {
+          text: "Cancelar",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+        {
+          text: "Excluir",
+          onPress: () => {
+            deletePostById(item.id);
+            setPostSelected(null);
+            console.log("post deleted", deletePostRequestStatus);
+          },
+        },
+      ]
+    );
   };
 
   return (
     <View lightColor="#F2F4F7" style={styles.container}>
-      <BaseModal visible={showModal} onRequestClose={() => setShowModal(false)}>
-        <Text style={styles.title}>Adicionar Post</Text>
-        <View style={styles.modalContainer}>
-          <TextInput placeholder="Título" style={styles.input} />
-          <TextInput
-            placeholder="Descrição"
-            style={styles.textArea}
-            multiline
-          />
+      <CreatePostModal setShowModal={setShowModal} showModal={showModal} />
+      {postSelected && (
+        <EditPostModal
+          setShowModal={setShowEditModal}
+          showModal={showEditModal}
+          postId={postSelected.id}
+          onClose={() => setPostSelected(null)}
+        />
+      )}
+
+      {getAllPostsRequestStatus.status === "pending" ? (
+        <View
+          style={{
+            flex: 1,
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: "#F2F4F7",
+            gap: 16,
+          }}
+        >
+          <Text style={{ fontSize: 20, fontWeight: "bold" }}>
+            Carregando Posts...
+          </Text>
+          <ActivityIndicator size="large" color="#007AFF" />
         </View>
-        <TouchableOpacity activeOpacity={0.7} style={styles.button}>
-          <Text style={styles.buttonText}>Adicionar</Text>
-        </TouchableOpacity>
-      </BaseModal>
-      <TouchableOpacity activeOpacity={0.7} style={styles.cardContainer}>
-        <Text style={styles.title}>
-          Non labore exercitation pariatur dolore deserunt.
-        </Text>
-        <Text style={styles.description}>
-          Consequat Lorem irure elit proident dolor ex in minim cupidatat tempor
-          in Lorem est aliquip. Enim eu incididunt non laborum nulla dolore amet
-          commodo cillum do. Consectetur qui sit Lorem ut ut excepteur velit
-          esse. Officia dolor proident deserunt culpa eiusmod incididunt non
-          eiusmod ex elit. Cupidatat id dolore nulla culpa aliqua sunt ut nulla
-          quis. Do ullamco anim qui officia occaecat deserunt deserunt nulla
-          commodo commodo ea dolore veniam culpa. Dolor anim reprehenderit amet
-          laboris amet non aliquip ex sint.
-        </Text>
-        <View style={styles.cardOptionContainer}>
-          <TouchableOpacity
-            activeOpacity={0.7}
-            style={styles.cardOptionButton}
-            onPress={() => setShowModal(true)}
-          >
-            <MaterialIcons name="edit" size={18} />
-          </TouchableOpacity>
-          <TouchableOpacity activeOpacity={0.7} style={styles.cardOptionButton}>
-            <MaterialIcons name="delete" size={18} color={"#d42626"} />
-          </TouchableOpacity>
-        </View>
-      </TouchableOpacity>
-      <TouchableOpacity activeOpacity={0.7} style={styles.cardContainer}>
-        <Text style={styles.title}>
-          Non labore exercitation pariatur dolore deserunt.
-        </Text>
-        <Text style={styles.description}>
-          Consequat Lorem irure elit proident dolor ex in minim cupidatat tempor
-          in Lorem est aliquip. Enim eu incididunt non laborum nulla dolore amet
-          commodo cillum do. Consectetur qui sit Lorem ut ut excepteur velit
-          esse. Officia dolor proident deserunt culpa eiusmod incididunt non
-          eiusmod ex elit. Cupidatat id dolore nulla culpa aliqua sunt ut nulla
-          quis. Do ullamco anim qui officia occaecat deserunt deserunt nulla
-          commodo commodo ea dolore veniam culpa. Dolor anim reprehenderit amet
-          laboris amet non aliquip ex sint.
-        </Text>
-        <View style={styles.cardOptionContainer}>
-          <TouchableOpacity activeOpacity={0.7} style={styles.cardOptionButton}>
-            <MaterialIcons name="edit" size={18} />
-          </TouchableOpacity>
-          <TouchableOpacity activeOpacity={0.7} style={styles.cardOptionButton}>
-            <MaterialIcons name="delete" size={18} color={"#d42626"} />
-          </TouchableOpacity>
-        </View>
-      </TouchableOpacity>
+      ) : (
+        <FlatList
+          data={posts}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <TouchableOpacity activeOpacity={0.7} style={styles.cardContainer}>
+              <Text style={styles.title}>{item.title}</Text>
+              <Text style={styles.description}>{item.body}</Text>
+              <View style={styles.cardOptionContainer}>
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  style={styles.cardOptionButton}
+                  onPress={() => {
+                    setPostSelected(item);
+                    setShowEditModal(true);
+                  }}
+                >
+                  <MaterialIcons name="edit" size={18} />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  style={styles.cardOptionButton}
+                  onPress={() => handleDeletePost(item)}
+                >
+                  <MaterialIcons name="delete" size={18} color={"#d42626"} />
+                </TouchableOpacity>
+              </View>
+            </TouchableOpacity>
+          )}
+        />
+      )}
+
       <TouchableOpacity
         activeOpacity={0.7}
         style={styles.addButton}
-        // onPress={() => setShowModal(true)}
-        // onPress={handleCreatePost}
-        onPress={handlePatchPost}
+        onPress={() => setShowModal(true)}
       >
         <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>
@@ -134,6 +143,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: "#ffffff",
     elevation: 1,
+    marginBottom: 16,
   },
   title: {
     fontSize: 20,

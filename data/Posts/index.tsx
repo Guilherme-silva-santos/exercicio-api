@@ -20,17 +20,14 @@ interface PostContextProps {
   createPost: (data: CreatePostRequest) => void;
   createPostRequestStatus: RequestStatus;
 
-  patchPost: (id: string, data: PatchPostRequest) => void;
+  patchPost: (id: number, data: PatchPostRequest) => void;
   patchPostRequestStatus: RequestStatus;
 
-  putPost: (id: string, data: PutPostRequest) => void;
+  putPost: (id: number, data: PutPostRequest) => void;
   putPostRequestStatus: RequestStatus;
 
-  deletePostById: (id: string) => void;
+  deletePostById: (id: number) => void;
   deletePostRequestStatus: RequestStatus;
-
-  // createPostRequest: CreatePostRequest;
-  // setCreatePostRequest: (data: CreatePostRequest) => void;
 }
 
 const PostContext = createContext<PostContextProps>({} as PostContextProps);
@@ -86,7 +83,7 @@ export const PostProvider = ({ children }: PostProviderProps) => {
     }
   };
 
-  const patchPost = async (id: string, data: PatchPostRequest) => {
+  const patchPost = async (id: number, data: PatchPostRequest) => {
     setPatchPostRequestStatus({ status: "pending" });
     try {
       await api.patch(`/posts/${id}`, data);
@@ -98,7 +95,7 @@ export const PostProvider = ({ children }: PostProviderProps) => {
     }
   };
 
-  const putPost = async (id: string, data: PutPostRequest) => {
+  const putPost = async (id: number, data: PutPostRequest) => {
     setPutPostRequestStatus({ status: "pending" });
     try {
       await api.put(`/posts/${id}`, data);
@@ -110,7 +107,7 @@ export const PostProvider = ({ children }: PostProviderProps) => {
     }
   };
 
-  const deletePostById = async (id: string) => {
+  const deletePostById = async (id: number) => {
     setDeletePostRequestStatus({ status: "pending" });
     try {
       await api.delete(`/posts/${id}`);
