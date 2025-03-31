@@ -16,6 +16,10 @@ import { GetPostResponse } from "@/model/get-post-response";
 export default function Index() {
   const [showModal, setShowModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [page, setPage] = useState(1);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [postsPerPage, setPostPerPage] = useState(5);
+  const [visiblePosts, setVisiblePosts] = useState<GetPostResponse[]>([]);
   const [postSelected, setPostSelected] = useState<GetPostResponse | null>(
     null
   );
@@ -26,14 +30,6 @@ export default function Index() {
     deletePostById,
     deletePostRequestStatus,
   } = useBlogPosts();
-  useEffect(() => {
-    getAllPosts();
-  }, []);
-
-  useEffect(() => {
-    console.log(postSelected);
-  }, [postSelected]);
-
   const handleDeletePost = (item: GetPostResponse) => {
     console.log(item);
 
@@ -58,6 +54,36 @@ export default function Index() {
     );
   };
 
+  const loadMorePosts = () => {
+    if (isLoadingMore) return;
+
+    setIsLoadingMore(true);
+
+    const nextPage = page + 1;
+    const start = (nextPage - 1) * postsPerPage;
+    const end = start + postsPerPage;
+
+    const newPosts = posts.slice(start, end);
+
+    if (newPosts.length > 0) {
+      setVisiblePosts((prev) => [...prev, ...newPosts]);
+      setPage(nextPage);
+    }
+
+    setIsLoadingMore(false);
+  };
+  useEffect(() => {
+    getAllPosts();
+  }, []);
+
+  useEffect(() => {
+    if (posts.length > 0 && visiblePosts.length === 0) {
+      const initialSlice = posts.slice(0, postsPerPage);
+      setVisiblePosts(initialSlice);
+      setPage(1);
+    }
+  }, [posts]);
+
   return (
     <View lightColor="#F2F4F7" style={styles.container}>
       <CreatePostModal setShowModal={setShowModal} showModal={showModal} />
@@ -69,7 +95,6 @@ export default function Index() {
           onClose={() => setPostSelected(null)}
         />
       )}
-
       {getAllPostsRequestStatus.status === "pending" ? (
         <View
           style={{
@@ -87,8 +112,10 @@ export default function Index() {
         </View>
       ) : (
         <FlatList
-          data={posts}
+          data={visiblePosts}
           keyExtractor={(item) => item.id.toString()}
+          onEndReached={loadMorePosts}
+          onEndReachedThreshold={0.3}
           renderItem={({ item }) => (
             <TouchableOpacity activeOpacity={0.7} style={styles.cardContainer}>
               <Text style={styles.title}>{item.title}</Text>
@@ -116,7 +143,6 @@ export default function Index() {
           )}
         />
       )}
-
       <TouchableOpacity
         activeOpacity={0.7}
         style={styles.addButton}

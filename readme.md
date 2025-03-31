@@ -11,7 +11,7 @@
     - [ x ]  Exibir feedback visual para o usuário
     - [ x ]  Testar todos os fluxos: sucesso, erro, pendente
     - [ x ]  Usar o hook do contexto nos componentes e telas
-- [ ]  Opcionais
+- [ x ]  Opcionais
     - [ x ]  Adicionar modal de confirmação para exclusão do Post
-    - [ ]  Implementar scroll infinito, para carregar os dados de maneira paginada
+    - [ x ]  Implementar scroll infinito, para carregar os dados de maneira paginada
     - [ ]  Implementar Dark Mode
