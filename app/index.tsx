@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  Button,
   FlatList,
   StyleSheet,
   TouchableOpacity,
@@ -12,6 +13,7 @@ import {
 import { CreatePostModal } from "@/components/CreatePostModal";
 import { EditPostModal } from "@/components/EditPostModal";
 import { GetPostResponse } from "@/model/get-post-response";
+import { useAppTheme } from "@/data/ThemeProvider";
 
 export default function Index() {
   const [showModal, setShowModal] = useState(false);
@@ -53,6 +55,41 @@ export default function Index() {
       ]
     );
   };
+  const { theme, toggleTheme, isDarkMode } = useAppTheme();
+
+  const staticStyle = StyleSheet.create({
+    cardContainer: {
+      width: "100%",
+      padding: 16,
+      gap: 8,
+      borderRadius: 12,
+      backgroundColor: theme.colors.background,
+      elevation: 1,
+      marginBottom: 16,
+    },
+    title: {
+      fontSize: 20,
+      fontWeight: "bold",
+      color: theme.colors.text,
+    },
+    description: {
+      color: theme.colors.text,
+      fontSize: 16,
+      fontWeight: "normal",
+    },
+    cardOptionButton: {
+      borderRadius: 4,
+      alignSelf: "center",
+      backgroundColor: theme.colors.background,
+      padding: 4,
+    },
+    cardOptionContainer: {
+      flexDirection: "row",
+      gap: 4,
+      alignSelf: "flex-end",
+      backgroundColor: theme.colors.background,
+    },
+  });
 
   const loadMorePosts = () => {
     if (isLoadingMore) return;
@@ -85,7 +122,24 @@ export default function Index() {
   }, [posts]);
 
   return (
-    <View lightColor="#F2F4F7" style={styles.container}>
+    <View style={styles.container}>
+      <View
+        style={{
+          flexDirection: "row",
+          gap: 16,
+          width: "100%",
+          justifyContent: "flex-end",
+          backgroundColor: "#F2F4F7",
+        }}
+      >
+        <TouchableOpacity activeOpacity={0.7} onPress={toggleTheme}>
+          <MaterialIcons
+            name={isDarkMode ? "light-mode" : "dark-mode"}
+            size={30}
+            color={"#007AFF"}
+          />
+        </TouchableOpacity>
+      </View>
       <CreatePostModal setShowModal={setShowModal} showModal={showModal} />
       {postSelected && (
         <EditPostModal
@@ -117,13 +171,16 @@ export default function Index() {
           onEndReached={loadMorePosts}
           onEndReachedThreshold={0.3}
           renderItem={({ item }) => (
-            <TouchableOpacity activeOpacity={0.7} style={styles.cardContainer}>
-              <Text style={styles.title}>{item.title}</Text>
-              <Text style={styles.description}>{item.body}</Text>
-              <View style={styles.cardOptionContainer}>
+            <TouchableOpacity
+              activeOpacity={0.7}
+              style={staticStyle.cardContainer}
+            >
+              <Text style={staticStyle.title}>{item.title}</Text>
+              <Text style={staticStyle.description}>{item.body}</Text>
+              <View style={staticStyle.cardOptionContainer}>
                 <TouchableOpacity
                   activeOpacity={0.7}
-                  style={styles.cardOptionButton}
+                  style={staticStyle.cardOptionButton}
                   onPress={() => {
                     setPostSelected(item);
                     setShowEditModal(true);
@@ -133,7 +190,7 @@ export default function Index() {
                 </TouchableOpacity>
                 <TouchableOpacity
                   activeOpacity={0.7}
-                  style={styles.cardOptionButton}
+                  style={staticStyle.cardOptionButton}
                   onPress={() => handleDeletePost(item)}
                 >
                   <MaterialIcons name="delete" size={18} color={"#d42626"} />
@@ -161,24 +218,9 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     padding: 18,
     gap: 16,
+    backgroundColor: "#F2F4F7",
   },
-  cardContainer: {
-    width: "100%",
-    padding: 16,
-    gap: 8,
-    borderRadius: 12,
-    backgroundColor: "#ffffff",
-    elevation: 1,
-    marginBottom: 16,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  description: {
-    fontSize: 16,
-    fontWeight: "normal",
-  },
+
   addButton: {
     backgroundColor: "#007AFF",
     position: "absolute",
@@ -226,16 +268,5 @@ const styles = StyleSheet.create({
     color: "#ffffff",
     fontWeight: "bold",
     fontSize: 16,
-  },
-  cardOptionContainer: {
-    flexDirection: "row",
-    gap: 4,
-    alignSelf: "flex-end",
-  },
-  cardOptionButton: {
-    borderRadius: 4,
-    alignSelf: "center",
-    backgroundColor: "#e3e3e3",
-    padding: 4,
   },
 });
